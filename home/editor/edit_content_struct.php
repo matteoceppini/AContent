@@ -60,6 +60,9 @@ if ($_POST['submit'])
 		}
 		else
 		{ // add new content
+                //
+                //
+                
 			// find out ordering and content_parent_id
 			if ($pid)
 			{ // insert sub content folder
@@ -70,7 +73,6 @@ if ($_POST['submit'])
 				$ordering = count($contentManager->getContent(0)) + 1;
 				$pid = 0;
 			}
-			
 			$cid = $contentManager->addContent($_SESSION['course_id'],
 			                                   $pid,
 			                                   $ordering,
@@ -217,4 +219,3 @@ require(TR_INCLUDE_PATH.'footer.inc.php');
 //save last visit page.
 $_SESSION['last_visited_page'] = $server_protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 ?>
-

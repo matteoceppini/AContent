@@ -90,7 +90,7 @@ $starttime = $mtime;
    <script src="<?php echo $this->base_path; ?>include/jscripts/flowplayer/flowplayer-3.2.4.min.js" type="text/javascript"></script>
    <script src="<?php echo $this->base_path; ?>include/jscripts/handleAjaxResponse.js" type="text/javascript"></script>
    <script src="<?php echo $this->base_path; ?>include/jscripts/transformable.js" type="text/javascript"></script>
-<?php echo $this->custom_head; ?>
+<?php echo $this->custom_css; ?>
    <script type="text/javascript">
 
       // check if AContent is into an iframe
@@ -105,19 +105,7 @@ $starttime = $mtime;
             //jQuery("#content_frame").contents().find("body").height()
          });
       }
-      // if AContent is being presented in ATutor, which has its own content navigation
-      //  hide way all navigation elements
-      /*
-      if (window.frameElement.id == "content_frame"){
-        document.writeln('<link rel="stylesheet" href="<?php echo $this->base_path.'themes/'.$this->theme; ?>/styles_atutor.css" type="text/css" />');
-         jQuery(document).ready(function() {
-            //alert(jQuery(document).height());
-            jQuery("#content_frame", window.parent.document).height(jQuery(document).height());
-            jQuery("#content_frame", window.parent.document).attr('scrolling', 'no');
-            //jQuery("#content_frame").contents().find("body").height()
-         });
-      }
-      */
+
    </script>
 </head>
 
@@ -159,7 +147,7 @@ $starttime = $mtime;
 
   </div>
 
-  <div class="topnavlistcontainer" role="navigation">
+  <div class="topnavlistcontainer">
   <!-- the main navigation. in our case, tabs -->
     <ul class="navigation">
 <?php 
@@ -207,7 +195,7 @@ foreach ($this->top_level_pages as $page) {
    <!-- the sub navigation and guide -->
   <div id="sub-menu">
    
-      <div class="search_top" role="search">
+      <div class="search_top">
       <form target="_top" action="<?php echo TR_BASE_HREF; ?>home/search.php" method="get">
         <input type="text" title="<?php echo _AT("search"); ?>" name="search_text" id="search_text_at_header" value="<?php if (isset($_GET['search_text'])) echo htmlentities_utf8($_GET['search_text'], ENT_QUOTES, 'UTF-8'); ?>" size="25" />
       
@@ -319,9 +307,9 @@ foreach ($this->top_level_pages as $page) {
       //<![CDATA[
       var state = trans.utility.getcookie("side-menu");
       if (state && (state == 'none')) {
-          document.writeln('<a name="menu"></a><div style="display:none;" id="side-menu" role="navigation">');
+          document.writeln('<a name="menu"></a><div style="display:none;" id="side-menu">');
       } else {
-          document.writeln('<a name="menu"></a><div id="side-menu" role="navigation">');
+          document.writeln('<a name="menu"></a><div id="side-menu">');
       }
       //]]>
       </script>
@@ -335,10 +323,11 @@ foreach ($this->top_level_pages as $page) {
     </div>
    <?php //endif; ?>
 
-    <div id="contentcolumn" role="main"
+    <div id="contentcolumn"
     <?php if (isset($this->course_id) && $this->course_id <= 0): ?>
       style="margin-left:0.5em;width:99%;"
-    <?php endif; ?>>
+    <?php endif; ?>
+    >
 
     <?php //if (isset($this->course_id) && $this->course_id > 0): ?>
       <div id="menutoggle">

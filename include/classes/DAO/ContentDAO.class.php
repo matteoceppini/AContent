@@ -90,6 +90,85 @@ class ContentDAO extends DAO {
 			return false;
 		}
 	}
+        
+             /**
+	 * Create new content for wizard
+	 * @access  public
+	 * @param   
+	 * @return  user id, if successful
+	 *          false and add error into global var $msg, if unsuccessful
+	 * @author  Matteo Ceppini
+	 */
+        public function CreateWizard($course_id, $content_parent_id, $ordering, $revision, $formatting, $keywords, 
+	                       $content_path, $title, $text, $head, $use_customized_head, $test_message, 
+	                       $content_type,$layout,$optional,$structure)
+	{
+		global $addslashes, $msg;
+		
+		if ($this->isFieldsValid('create', $course_id, $title))
+		{
+			// insert into the db 
+			
+			$sql = "INSERT INTO ".TABLE_PREFIX."content
+			              (course_id,
+			               content_parent_id,
+			               ordering,
+			               last_modified,
+			               revision,
+			               formatting,
+			               keywords,
+			               content_path,
+			               title,
+			               text,
+			               head,
+			               use_customized_head,
+			               test_message,
+			               content_type,
+                                       layout,
+                                       optional,
+                                       structure
+			               )
+			       VALUES (".$course_id.",
+			               ".$content_parent_id.",
+			               ".$ordering.",
+			               now(), 
+			               ".$revision.",
+			               ".$formatting.",
+			               '".$addslashes($keywords)."',
+			               '".$content_path."', 
+			               '".$addslashes($title)."',
+			               '".$addslashes($text)."',
+			               '".$addslashes($head)."',
+			               ".$use_customized_head.",
+			               '".$addslashes($test_message)."',
+			               '0',
+                                       '".$addslashes($layout)."',
+                                       '".$addslashes($optional)."',
+                                       '".$addslashes($structure)."')";
+			
+			if (!$this->execute($sql))
+			{
+				$msg->addError('DB_NOT_UPDATED');
+				return false;
+			}
+			else
+			{
+				
+				$cid = mysql_insert_id();
+				
+				// update the courses.modified_date to the current timestamp
+				include_once(TR_INCLUDE_PATH.'classes/DAO/CoursesDAO.class.php');
+				$coursesDAO = new CoursesDAO();
+				$coursesDAO->updateModifiedDate($cid, "content_id");
+				
+				return $cid;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	/**
 	 * Update an existing content record

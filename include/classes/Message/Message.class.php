@@ -293,7 +293,7 @@ class Message {
 		$code[] = ($button_yes_text == '') ? _AT("submit_yes") : $button_yes_text;
 		$code[] = ($button_no_text == '') ? _AT("submit_no") : $button_no_text;
 		$code[] = $hide_button_no;
-		
+                		
 		$this->addAbstract('confirm', $code);
 	}
 	

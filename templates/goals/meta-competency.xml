@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<type name="meta-competency">
+    <goal>outlining</goal>
+    <goal>recognising</goal>
+    <goal>interpreting</goal>
+    <goal>carryng out</goal>
+    <goal>applying/implementing</goal>
+    <goal>verifing/testing</goal>
+    <goal>explaining</goal>
+    <goal>exemplifing</goal>
+    <goal>summarizing</goal>
+</type>

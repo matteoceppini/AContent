@@ -261,6 +261,35 @@ class ContentManager
 		
 		return $cid;
 	}
+        
+        //CM 06/12/2012         
+        function addContentWizard($course_id, $content_parent_id, $ordering, $title, $text, $keywords, 
+	                    $related, $formatting, $head = '', $use_customized_head = 0, 
+	                    $test_message = '', $content_type = CONTENT_TYPE_CONTENT) {
+		global $_current_user, $_course_id;
+                
+	    if (!isset($_current_user) || !$_current_user->isAuthor($this->course_id)) {
+			return false;
+		}
+
+		// shift the new neighbouring content down
+		$sql = "UPDATE ".TABLE_PREFIX."content SET ordering=ordering+1 
+		         WHERE ordering>=$ordering 
+		           AND content_parent_id=$content_parent_id 
+		           AND course_id=$_course_id";
+		 
+		$this->contentDAO->execute($sql);
+                $structure=$text;
+                $text='';
+                $layout='';
+                $optional='';
+		// main topics all have minor_num = 0 
+		$cid = $this->contentDAO->CreateWizard($_course_id, $content_parent_id, $ordering, 0, $formatting,
+		                          $keywords, '', $title, $text, $head, $use_customized_head,
+		                          $test_message, $content_type,$layout,$optional,$structure);
+		
+		return $cid;
+	}
 	
 	function editContent($content_id, $title, $text, $keywords, $formatting, 
 	                     $head, $use_customized_head, $test_message) {
@@ -464,7 +493,7 @@ class ContentManager
 	 * @date	Sep 10, 2008
 	 * @author	Harris
 	 */
-	function getContentTestsAssoc($content_id){
+	function & getContentTestsAssoc($content_id){
 		$sql	= "SELECT ct.test_id, t.title 
 		             FROM (SELECT * FROM ".TABLE_PREFIX."content_tests_assoc 
 		                    WHERE content_id=$content_id) AS ct 
@@ -473,7 +502,7 @@ class ContentManager
 		return $this->dao->execute($sql);
 	}
 
-	function cleanOutput($value) {
+	function & cleanOutput($value) {
 		return stripslashes(htmlspecialchars($value));
 	}
 
@@ -590,7 +619,7 @@ class ContentManager
 		
 		$first = $this->getNextContent(0); // get first
 		//echo("TITOLO : ". $first['title']);
-		if ($first) {
+		if ($_SESSION['prefs']['PREF_NUMBERING'] && $first) {
 			$first['title'] = $this->getNumbering($first['content_id']).' '.$first['title'];
 		}
 		if ($first) {
@@ -601,6 +630,10 @@ class ContentManager
 		if (!$cid && $_SESSION['s_cid']) {
 			$resume['title'] = $this->_menu_info[$_SESSION['s_cid']]['title'];
 
+			if ($_SESSION['prefs']['PREF_NUMBERING']) {
+				$resume['title'] = $this->getNumbering($_SESSION['s_cid']).' ' . $resume['title'];
+			}
+
 			$resume['url'] = $_base_path.'home/course/content.php?_cid='.$_SESSION['s_cid'];
 			
 			$sequence_links['resume'] = $resume;
@@ -609,6 +642,11 @@ class ContentManager
 				$previous = $this->getPreviousContent($cid);
 			}
 			$next = $this->getNextContent($cid ? $cid : 0);
+
+			if ($_SESSION['prefs']['PREF_NUMBERING']) {
+				$previous['title'] = $this->getNumbering($previous['content_id']).' '.$previous['title'];
+				$next['title'] = $this->getNumbering($next['content_id']).' '.$next['title'];
+			}
 
 			$next['url'] = $_base_path.'home/course/content.php?_cid='.$next['content_id'];
 			if (isset($previous['content_id'])) {
@@ -808,6 +846,432 @@ initContentMenu();
 		$this->printMenu($parent_id, $depth, $path, $children, $truncate, $ignore_state, 'sitemap');
 	}
 
+        //Ceppini Matteo
+     	/* @See include/html/dropdowns/menu_menu.inc.php */
+	function printMainMenuWizard( ) {
+		global $_current_user, $_course_id;
+		
+		if (!($this->course_id > 0)) {
+			return;
+		}
+		
+		global $_base_path;
+		
+		$parent_id    = 0;
+		$depth        = 0;
+		$path         = '';
+		$children     = array();
+		$truncate     = true;
+		$ignore_state = true;
+
+		$this->start = true;
+		
+		// if change the location of this line, change function switchEditMode(), else condition accordingly
+		echo '<div id="editable_table">';
+		
+/*		if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme())
+		{
+		global $_config;
+			echo ' <div class="menuedit">';
+			if($_config['enable_template_structure'] == '1'){
+			  echo '<a href="'.$_base_path.'home/editor/edit_content_struct.php?_course_id='.$_course_id.'">
+    		  <img id="img_create_top_folder" src="'.$_base_path.'images/addstruct.gif" alt="'._AT('add_top_structure').'" title="'._AT('add_top_structure').'" style="border:0;height:1.2em" />
+   				 </a>'."\n";
+			}
+			echo "\n".'
+				<a href="'.$_base_path.'home/editor/edit_content_folder.php?_course_id='.$_course_id.'">
+				  <img id="img_create_top_folder" src="'.$_base_path.'images/mfolder.gif" alt="'._AT("add_top_folder").'" title="'._AT("add_top_folder").'" style="border:0;height:1.2em" />
+				</a>'."\n".'
+				<a href="'.$_base_path.'home/editor/edit_content.php?_course_id='.$_course_id.'">
+				  <img id="img_create_top_content" src="'.$_base_path.'images/mpage.gif" alt="'._AT("add_top_page").'" title="'._AT("add_top_page").'" style="border:0;height:1.2em" />
+				</a>'."\n".'
+				<a href="javascript:void(0)" onclick="javascript:switchEditMode();">
+				  <img id="img_switch_edit_mode" src="'.$_base_path.'images/medit.gif" alt="'._AT("enter_edit_mode").'" title="'._AT("enter_edit_mode").'" style="border:0;height:1.2em" />
+				</a>
+			  </div>'."\n";
+                 
+		}
+ */
+		$this->printMenuWizard($parent_id, $depth, $path, $children, $truncate, $ignore_state,$_course_id);
+		
+		// javascript for inline editor
+		echo '
+<script type="text/javascript">
+';
+		// only expand the content folder that has the current content page
+		$this->initMenu();
+		
+		echo '
+function switchEditMode() {
+  title_edit = "'._AT("enter_edit_mode").'";
+  img_edit = "'.$_base_path.'images/medit.gif";
+	
+  title_view = "'._AT("exit_edit_mode").'";
+  img_view = "'.$_base_path.'images/mlock.gif";
+	
+  if (jQuery("#img_switch_edit_mode").attr("src") == img_edit)
+  {
+    jQuery("#img_switch_edit_mode").attr("src", img_view);
+    jQuery("#img_switch_edit_mode").attr("alt", title_view);
+    jQuery("#img_switch_edit_mode").attr("title", title_view);
+    inlineEditsSetup();
+  }
+  else
+  { // refresh the content navigation to exit the edit mode
+    jQuery.post("'. TR_BASE_HREF. 'home/course/refresh_content_nav.php?_course_id='.$_course_id.'", {}, 
+                function(data) {jQuery("#editable_table").replaceWith(data); initContentMenu();});
+  }
+}
+
+function inlineEditsSetup() {
+  jQuery("#editable_table").find(".inlineEdits").each(function() {
+    jQuery(this).text(jQuery(this).attr("title"));
+  });
+	
+  var tableEdit = fluid.inlineEdits("#editable_table", {
+    selectors : {
+      text : ".inlineEdits",
+      editables : "span:has(span.inlineEdits)"
+    },
+    defaultViewText: "",
+      applyEditPadding: false,
+      useTooltip: true,
+      listeners: {
+        afterFinishEdit : function (newValue, oldValue, editNode, viewNode) {
+          if (newValue != oldValue) 
+          {
+            rtn = jQuery.post("'. TR_BASE_HREF. 'home/course/content_nav_inline_editor_submit.php", { "field":viewNode.id, "value":newValue }, 
+                  function(data) {}, "json");
+          }
+        }
+      }
+   });
+
+  jQuery(".fl-inlineEdit-edit").css("width", "80px")
+};
+
+initContentMenu();
+</script>
+';
+		echo '</div>';
+	}   
+        
+        
+        /* @See include/html/menu_menu.inc.php	*/
+	/* Access: PRIVATE */
+	function printMenuWizard($parent_id, $depth, $path, $children, $truncate, $ignore_state,$_course_id, $from = '') {
+		global $cid, $_my_uri, $_base_path, $rtl, $substr, $strlen, $_current_user;
+		static $temp_path;
+
+		if (!isset($temp_path)) {
+			if ($cid) {
+				$temp_path	= $this->getContentPath($cid);
+			} else {
+				$temp_path	= $this->getContentPath($_SESSION['s_cid']);
+			}
+		}
+
+		$highlighted = array();
+		if (is_array($temp_path)) {
+			foreach ($temp_path as $temp_path_item) {
+				$_SESSION['menu'][$temp_path_item['content_id']] = 1;
+				$highlighted[$temp_path_item['content_id']] = true;
+			}
+		}
+
+		if ($this->start) {
+			reset($temp_path);
+			$this->start = false;
+		}
+
+		if ( isset($this->_menu[$parent_id]) && is_array($this->_menu[$parent_id]) ) {
+			$top_level = $this->_menu[$parent_id];
+			$counter = 1;
+			$num_items = count($top_level);
+			
+//			if ($parent_id <> 0) echo '<li>';
+			
+//			echo '<ul id="folder'.$parent_id.$from.'">'."\n";
+			echo '<div id="folder'.$parent_id.$from.'">'."\n";
+			
+			foreach ($top_level as $garbage => $content) {
+				
+				$link = '';
+				//tests do not have content id
+				$content['content_id'] = isset($content['content_id']) ? $content['content_id'] : '';
+
+				if (!$ignore_state) {
+					$link .= '<a name="menu'.$content['content_id'].'"></a>';
+				}
+
+				$on = false;
+
+				if ( (($_SESSION['s_cid'] != $content['content_id']) || ($_SESSION['s_cid'] != $cid)) && ($content['content_type'] == CONTENT_TYPE_CONTENT || $content['content_type'] == CONTENT_TYPE_WEBLINK)) 
+				{ // non-current content nodes with content type "CONTENT_TYPE_CONTENT"
+					if (isset($highlighted[$content['content_id']])) {
+						$link .= '<strong>';
+						$on = true;
+					}
+
+					//content test extension  @harris
+					//if this is a test link.
+					if (isset($content['test_id'])){
+						$title_n_alt =  $content['title'];
+						$in_link = $_base_path.'tests/preview.php?tid='.$content['test_id'].'&_cid='.$parent_id;
+						$img_link = ' <img src="'.$_base_path.'images/check.gif" title="'.$title_n_alt.'" alt="'.$title_n_alt.'" />';
+					} else {
+	//					$in_link = $_base_path.'home/course/content.php?_cid='.$content['content_id'];
+        // NEW 22/02/2013                                    
+                                                $in_link = $_base_path.'home/editor/edit_content_wizard_step3.php?_course_id='.$_course_id.'&_content_id='.$content['content_id'];
+						$img_link = '';
+					}
+					
+					$full_title = $content['title'];
+//					$link .= $img_link . ' <a href="'.$_base_path.url_rewrite($in_link).'" title="';
+					$link .= $img_link . ' <a href="'.$in_link.'" title="';
+					$base_title_length = 29;
+					if ($_SESSION['prefs']['PREF_NUMBERING']) {
+//						$link .= $path.$counter.' ';
+						$base_title_length = 24;
+					}
+
+					$link .= $content['title'].'">';
+
+					if ($truncate && ($strlen($content['title']) > ($base_title_length-$depth*4)) ) {
+						$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, ($base_title_length-$depth*4)-4))).'...';
+					}
+//					$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, $base_title_length-4))).'...';
+					
+					if (isset($content['test_id']))
+						$link .= $content['title'];
+					else
+						$link .= '<span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
+						         $content['title'].'</span>';
+					
+					$link .= '</a>';
+					if ($on) {
+						$link .= '</strong>';
+					}
+					
+					// instructors have privilege to delete content
+		/*			if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !isset($content['test_id']) && !Utility::isMobileTheme()) {
+					//catia
+						if($content['optional'] == 1) 
+						//1 the content is optional
+							$link .= '<a href="'.$_base_path.'home/editor/delete_content.php?_cid='.$content['content_id'].'"><img src="'.TR_BASE_HREF.'images/x.gif" alt="'._AT("delete_content").'" title="'._AT("delete_content").'" style="border:0" class="delete_ex" /></a>';
+						else
+						//0 the content is mandatory
+							$link .= '<img style="margin-left:2px" src="'.$_base_path.'images/must.png" title="'._AT('mandatory_content').'" class="mandatory_ex"/>';
+					}
+	*/	
+				} 
+				else 
+				{ // current content page & nodes with content type "CONTENT_TYPE_FOLDER"
+					$base_title_length = 26;
+					if ($_SESSION['prefs']['PREF_NUMBERING']) {
+						$base_title_length = 21;
+					}
+					
+					if (isset($highlighted[$content['content_id']])) {
+						$link .= '<strong>';
+						$on = true;
+					}
+
+					if ($content['content_type'] == CONTENT_TYPE_CONTENT || $content['content_type'] == CONTENT_TYPE_WEBLINK)
+					{ // current content page
+						$full_title = $content['title'];
+						$link .= '<a href="'.$_my_uri.'"><img src="'.$_base_path.'images/clr.gif" alt="'._AT('you_are_here').': '.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter : '').
+						         $content['title'].'" height="1" width="1" border="0" /></a><strong style="color:red" title="'.$content['title'].'">'."\n";
+						
+						if ($truncate && ($strlen($content['title']) > ($base_title_length-$depth*4)) ) {
+							$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, ($base_title_length-$depth*4)-4))).'...';
+						}
+//						$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, $base_title_length-4))).'...';
+						$link .= '<a name="menu'.$content['content_id'].'"></a><span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
+						         $content['title'].'</span></strong>';
+						
+						// instructors have privilege to delete content
+	/*					if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme()) {
+						
+								//catia
+							if($content['optional'] == 1) 
+							//1 the content is optional
+								$link .= '<a href="'.$_base_path.'home/editor/delete_content.php?_cid='.$content['content_id'].'"><img src="'.TR_BASE_HREF.'images/x.gif" alt="'._AT("delete_content").'" title="'._AT("delete_content").'" style="border:0"  class="delete_ex" /></a>';
+							else
+							//0 the content is mandatory
+								$link .= '<img src="'.$_base_path.'images/must.png" title="'._AT('mandatory_content').'" style="margin-left:2px;" class="mandatory_ex"/>';
+						}
+         */
+					}
+					else
+					{ // nodes with content type "CONTENT_TYPE_FOLDER"
+//						$link .= '<a href="javascript:void(0)" onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\'); "><img src="'.$_base_path.'images/clr.gif" alt="'._AT('content_folder').': '.$content['title'].'" height="1" width="1" border="0" /></a>'."\n";
+						
+						$full_title = $content['title'];
+						if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme()) {
+//							$link .= '<a href="'.$_base_path.url_rewrite("editor/edit_content_folder.php?_cid=".$content['content_id']).'" title="'.$full_title. _AT('click_edit').'">'."\n";
+							$link .= '<a href="'.$_base_path.'home/editor/edit_content_wizard_step3.php?_course_id='.$_course_id.'&_content_id='.$content['content_id'].'" title="'.$full_title. _AT('click_edit').'">'."\n";
+                                                        
+						}
+						else {
+                                                    /////////////////////////////////////// onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\', \''._AT("expand").'\', \''._AT('collapse').'\', '.$this->course_id.'); "
+							$link .= '<span style="cursor:pointer" >'."\n";
+						}
+						
+						if ($truncate && ($strlen($content['title']) > ($base_title_length-$depth*4)) ) {
+							$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, ($base_title_length-$depth*4)-4))).'...';
+						}
+//						$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, $base_title_length-4))).'...';
+						if (isset($content['test_id']))
+							$link .= $content['title'];
+						else
+							$link .= '<span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+							         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
+							         $content['title'].'</span>';
+						
+						if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme()) {
+							$link .= '</a>'."\n";
+						}
+						else {
+							$link .= '</span>'."\n";
+						}
+/*						
+						// instructors have privilege to delete content
+						if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme()) {
+							$link .= '<a href="'.$_base_path.'home/editor/delete_content.php?_cid='.$content['content_id'].'"><img src="'.TR_BASE_HREF.'images/x.gif" alt="'._AT("delete_content").'" title="'._AT("delete_content").'" style="border:0"  class="delete_ex" /></a>';
+						}
+ */
+//						echo '<div id="folder_content_'.$content['content_id'].'">';
+					}
+					
+					if ($on) {
+						$link .= '</strong>';
+					}
+				}
+
+				if ($ignore_state) {
+					$on = true;
+				}
+
+//				echo '<li>'."\n";
+				echo '<span>'."\n";
+				
+				if ( isset($this->_menu[$content['content_id']]) && is_array($this->_menu[$content['content_id']]) ) {
+					/* has children */
+					for ($i=0; $i<$depth; $i++) {
+						if ($children[$i] == 1) {
+							echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_vertline.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+						} else {
+							echo '<img src="'.$_base_path.'images/clr.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+						}
+					}
+
+					if (($counter == $num_items) && ($depth > 0)) {
+						echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_end.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+						$children[$depth] = 0;
+					} else if ($counter == $num_items) {
+						echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_end.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+						$children[$depth] = 0;
+					} else {
+						echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_split.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+						$children[$depth] = 1;
+					}
+
+					if ($_SESSION['s_cid'] == $content['content_id']) {
+						if (is_array($this->_menu[$content['content_id']])) {
+							$_SESSION['menu'][$content['content_id']] = 1;
+						}
+					}
+
+					if (isset($_SESSION['menu'][$content['content_id']]) && $_SESSION['menu'][$content['content_id']] == 1) {
+						if ($on) {
+//							echo '<img src="'.$_base_path.'images/tree/tree_collapse.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('collapse').'" border="0" width="16" height="16" title="'._AT('collapse').'" class="img-size-tree" onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\'); " />'."\n";
+							///////////////////onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\', \''._AT("expand").'\', \''._AT('collapse').'\', '.$this->course_id.'); "
+                                                    echo '<a href="javascript:void(0)" ><img src="'.$_base_path.'images/tree/tree_collapse.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('collapse').'" border="0" width="16" height="16" title="'._AT('collapse').'" class="img-size-tree" /></a>'."\n";
+							
+						} else {
+							echo '<a href="'.$_my_uri.'collapse='.$content['content_id'].'">'."\n";
+                                                        ////////////onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\', \''._AT("expand").'\', \''._AT('collapse').'\', '.$this->course_id.'); "
+							echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_collapse.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('collapse').'" border="0" width="16" height="16" title="'._AT('collapse').' '.$content['title'].'" class="img-size-tree"  />'."\n";
+							echo '</a>'."\n";
+						}
+					} else {
+						if ($on) {
+//							echo '<img src="'.$_base_path.'images/tree/tree_collapse.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('collapse').'" border="0" width="16" height="16" title="'._AT('collapse').'" class="img-size-tree" />'."\n";
+							///////////////////onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\', \''._AT("expand").'\', \''._AT('collapse').'\', '.$this->course_id.'); "
+                                                    echo '<a href="javascript:void(0)" ><img src="'.$_base_path.'images/tree/tree_collapse.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('collapse').'" border="0" width="16" height="16" title="'._AT('collapse').'" class="img-size-tree" /></a>'."\n";
+							
+						} else {
+							echo '<a href="'.$_my_uri.'expand='.$content['content_id'].'">'."\n";
+                                                        /////onclick="javascript: trans.utility.toggleFolder(\''.$content['content_id'].$from.'\', \''._AT("expand").'\', \''._AT('collapse').'\', '.$this->course_id.'); "
+							echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_expand.gif" id="tree_icon'.$content['content_id'].$from.'" alt="'._AT('expand').'" border="0" width="16" height="16" 	title="'._AT('expand').' '.$content['title'].'" class="img-size-tree"  />';
+							echo '</a>'."\n";
+						}
+					}
+
+				} else {
+					/* doesn't have children */
+					if ($counter == $num_items) {
+						for ($i=0; $i<$depth; $i++) {
+							if ($children[$i] == 1) {
+								echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_vertline.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+							} else {
+								echo '<img src="'.$_base_path.'images/clr.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+							}
+						}
+						echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_end.gif" alt="" border="0" class="img-size-tree" />'."\n";
+					} else {
+						for ($i=0; $i<$depth; $i++) {
+							if ($children[$i] == 1) {
+								echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_vertline.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+							} else {
+								echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_space.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+							}
+						}
+						echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_split.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+					}
+					echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_horizontal.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
+				}
+
+//				if ($_SESSION['prefs']['PREF_NUMBERING']) {
+//					echo $path.$counter;
+//				}
+				
+				echo $link;
+				
+				echo "\n<br /></span>\n\n";
+				
+				if ( $ignore_state || (isset($_SESSION['menu'][$content['content_id']]) && $_SESSION['menu'][$content['content_id']] == 1)) {
+
+					$depth ++;
+
+					$this->printMenuWizard($content['content_id'],
+										$depth, 
+										$path.$counter.'.', 
+										$children,
+										$truncate, 
+										$ignore_state,
+                                                                                $_course_id,
+										$from);
+
+										
+					$depth--;
+
+				}
+				$counter++;
+			} // end of foreach
+//			echo "</ul>";
+//			if ($parent_id <> 0) print "</li>\n\n";
+			print "</div>\n\n";
+		}
+	}
+        
+        
+        
+        
 	/* @See index.php */
 	function printTOCMenu($cid, $top_num) {
 		$parent_id    = $cid;
@@ -905,6 +1369,10 @@ initContentMenu();
 //					$link .= $img_link . ' <a href="'.$_base_path.url_rewrite($in_link).'" title="';
 					$link .= $img_link . ' <a href="'.$in_link.'" title="';
 					$base_title_length = 29;
+					if ($_SESSION['prefs']['PREF_NUMBERING']) {
+//						$link .= $path.$counter.' ';
+						$base_title_length = 24;
+					}
 
 					$link .= $content['title'].'">';
 
@@ -917,6 +1385,7 @@ initContentMenu();
 						$link .= $content['title'];
 					else
 						$link .= '<span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
 						         $content['title'].'</span>';
 					
 					$link .= '</a>';
@@ -939,7 +1408,10 @@ initContentMenu();
 				else 
 				{ // current content page & nodes with content type "CONTENT_TYPE_FOLDER"
 					$base_title_length = 26;
-
+					if ($_SESSION['prefs']['PREF_NUMBERING']) {
+						$base_title_length = 21;
+					}
+					
 					if (isset($highlighted[$content['content_id']])) {
 						$link .= '<strong>';
 						$on = true;
@@ -949,6 +1421,7 @@ initContentMenu();
 					{ // current content page
 						$full_title = $content['title'];
 						$link .= '<a href="'.$_my_uri.'"><img src="'.$_base_path.'images/clr.gif" alt="'._AT('you_are_here').': '.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter : '').
 						         $content['title'].'" height="1" width="1" border="0" /></a><strong style="color:red" title="'.$content['title'].'">'."\n";
 						
 						if ($truncate && ($strlen($content['title']) > ($base_title_length-$depth*4)) ) {
@@ -956,6 +1429,7 @@ initContentMenu();
 						}
 //						$content['title'] = htmlspecialchars(rtrim($substr(htmlspecialchars_decode($content['title']), 0, $base_title_length-4))).'...';
 						$link .= '<a name="menu'.$content['content_id'].'"></a><span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+						         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
 						         $content['title'].'</span></strong>';
 						
 						// instructors have privilege to delete content
@@ -991,6 +1465,7 @@ initContentMenu();
 							$link .= $content['title'];
 						else
 							$link .= '<span class="inlineEdits" id="menu-'.$content['content_id'].'" title="'.$full_title.'">'.
+							         ($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter.'&nbsp;' : '').
 							         $content['title'].'</span>';
 						
 						if (isset($_current_user) && ($_current_user->isAuthor($this->course_id) || $_current_user->isAdmin()) && !Utility::isMobileTheme()) {
@@ -1092,6 +1567,10 @@ initContentMenu();
 					echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_horizontal.gif" alt="" border="0" width="16" height="16" class="img-size-tree" />'."\n";
 				}
 
+//				if ($_SESSION['prefs']['PREF_NUMBERING']) {
+//					echo $path.$counter;
+//				}
+				
 				echo $link;
 				
 				echo "\n<br /></span>\n\n";
@@ -1282,7 +1761,11 @@ initContentMenu();
 					echo '<img src="'.$_base_path.'images/'.$rtl.'tree/tree_horizontal.gif" alt="" border="0" width="16" height="16"  class="img-size-tree"/>';
 				}
 
-				echo '<small> ' . $link . '</small></td>'."\n".'</tr>'."\n";
+				echo '<small> '.($_SESSION['prefs']['PREF_NUMBERING'] ? $path.$counter : '');
+				
+				echo $link;
+				
+				echo '</small></td>'."\n".'</tr>'."\n";
 
 				$this->printActionMenu($menu,
 									$content['content_id'],

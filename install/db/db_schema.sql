@@ -35,6 +35,8 @@ CREATE TABLE `content` (
   `layout` TEXT NOT NULL,
   `optional` BOOLEAN NOT NULL default '1',
   `structure` TEXT NOT NULL,
+  `accessibility` TINYINT(1) NOT NULL default '0',
+  `copyright` TINYINT(1) NOT NULL default '0',
   PRIMARY KEY  (`content_id`),
   KEY `course_id` (`course_id`),
   FULLTEXT(keywords, title, text)

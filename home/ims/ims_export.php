@@ -86,7 +86,7 @@ $course_desc     = htmlspecialchars($course_row['description'], ENT_QUOTES, 'UTF
 $course_title    = htmlspecialchars($course_row['title'], ENT_QUOTES, 'UTF-8');
 $course_language = $course_row['primary_language'];
 
-$courseLanguage = $languageManager->getLanguage($course_language);
+$courseLanguage =& $languageManager->getLanguage($course_language);
 //If course language cannot be found, use UTF-8 English
 //@author harris, Oct 30,2008
 if (!isset($courseLanguage) || $courseLanguage == null){
@@ -343,30 +343,13 @@ $html_mainheader = str_replace(array('{COURSE_TITLE}', '{COURSE_PRIMARY_LANGUAGE
  * */
 
 $mnf	= '';
-$flag = false;
+$mnf	.= "<resource identifier=\"MANIFEST01_RESOURCE".rand()."\" type=\"webcontent\">\n";
+$mnf	.= "<metadata/>\n";
 	// take all .css documents in "commoncartridge" folder
 	$css	= array();
 	for($i=0; $i < count($rows); $i++){
-		if(!in_array($rows[$i]['layout'], $css) AND $rows[$i]['layout'] != null AND $templates_theme->exist_layout($rows[$i]['layout'])) {
-                       
-                    
-                        if(!$flag) {
-                            
-                                $mnf	.= "<resource identifier=\"MANIFEST01_RESOURCE".rand()."\" type=\"webcontent\">\n";
-                                $mnf	.= "<metadata/>\n";
-                                $flag = true;
-                        }
-                        
-                        if ($cid) {
-                            if($rows[$i]['content_id'] != $cid) {
-                                
-                                //I must insert only the layout of the content $cid
-                                break;
-                                
-                            }
-                           
-                        }
-                        
+		if(!in_array($rows[$i]['layout'], $css) AND $rows[$i]['layout'] != null){
+
 			$css[]	= $rows[$i]['layout'];
 
 			// add the .css file
@@ -381,10 +364,7 @@ $flag = false;
 				}
 		}
 	}
-        
-if($flag)
-        $mnf	.= "\n</resource>";        
-
+$mnf	.= "\n</resource>";
 
 $resources .= $mnf;
 

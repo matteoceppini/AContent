@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<type name="knowledge">
+        <goal>remembering</goal>
+        <goal>classifying</goal>
+        <goal>listing</goal>
+        <goal>executing task/exercise</goal>
+        <goal>retrieving</goal>
+</type>
+        
+

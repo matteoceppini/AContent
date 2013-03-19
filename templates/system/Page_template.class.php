@@ -63,8 +63,150 @@ class Page_template {
 		return;
 	}
 
+           public function v(){
+            ?>
+<div class="input-form">
+    <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post" style="display: inline;">
+        <li>
+             <input type="submit" style="width:250px;" value="Back to options screen" id="template_back" name="template_back" />   
+        </li>
+    </form>
+    <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" id="test" method="post" style="display: inline;" onsubmit="return false">
+    <link rel="stylesheet" type="text/css" href="<?php echo TR_BASE_HREF; ?>/themes/default/forms.css">
+    <div style="text-align:left; margin: 10px; margin-top: 20px; margin-bottom: 15px;">
+
+    <li id="deactivate_page_template_bar" style="display:<?php ($with_content == 0 ? 'none' : 'inline') ?>">
+        <button type="button" id="deactivate_page_template" class="button"><?php echo _AT('hide_templates'); ?></button>
+    </li>
+
+    <li id="activate_page_template_bar" style="display: <?php ($with_content == 0 ? 'none' : 'inline') ?>">
+            <button type="button" id="activate_page_template" class="button"><?php ($with_content == 0 ? _AT('show_templates') : _AT('add_templates'))?></button>
+
+    <li id="orderPageTemplate_bar" style="display: none;">
+        <div style="padding:5px;"></div>
+            <button type="button" id="orderPageTemplate" class="button"><?php echo _AT('edit_templates'); ?></button>
+    </li>
+    <div style="padding:5px;"></div>
+    <li id="savePageTemplate_bar" style="display: <?php ($with_content == 0 ? 'inline' : 'none') ?>">
+        <input id="server_url" value="<?php echo $_SERVER['REQUEST_URI']; ?>" type="hidden" />
+        <input id="content_id" value="<?php echo $_content_id ?>" type="hidden" />
+        <button type="button" id="savePageTemplate" class="button"><?php echo _AT('save');?></button>
+    </li>
+    </div>
+
+    <script type="text/javascript" src="<?php echo TR_BASE_HREF; ?>templates/system/Page_template.js"></script>
+
+    <?php
+    $with_content=1;
+    $pageTemplateList = array();
+// Db calls to get the values ??of the structure and title
+    define('TR_INCLUDE_PATH', '../../include/');
+    include_once(TR_INCLUDE_PATH.'classes/DAO/DAO.class.php');
+    require_once(TR_INCLUDE_PATH.'lib/tinymce.inc.php');
+    require_once(TR_INCLUDE_PATH.'classes/FileUtility.class.php');
+    require_once(TR_INCLUDE_PATH.'../home/classes/StructureManager.class.php');
+    require_once(TR_INCLUDE_PATH.'vitals.inc.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/ContentDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/PrivilegesDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/CoursesDAO.class.php');
+
+    Utility::authenticate(TR_PRIV_ISAUTHOR);
+    
+    $dao = new DAO();
+
+		$sql="SELECT structure FROM ".TABLE_PREFIX."content WHERE content_id=".$this->content_id."";
+		$result=$dao->execute($sql);
+
+		if(is_array($result))
+		{
+			foreach ($result as $support) {
+				$content=$support['structure'];
+				break;
+			}
+		}
+		$sql="SELECT title FROM ".TABLE_PREFIX."content WHERE content_id=".$this->content_id."";
+		$result=$dao->execute($sql);
+		if(is_array($result)) {
+			foreach ($result as $support) {
+				$title=$support['title'];
+				break;
+			}
+		}
+    
+//die($title); ok!!!
+//die($content); ok!!!
+    
+    if($content!='') {
+            // Upload the array of default page template structure
+            $structManager = new StructureManager($content);
+
+            $item=$structManager->getPageTemplatesItem($title);
+            $array = $structManager->getContent($item);
+
+            //	$pageTemplateList = $this->validatedPageTemplate($array);
+    }
+
+    $pageTemplateList = $this->getPageTemplateList();
+    
+//die($pageTemplateList); ARRAY
+
+    ?>
+    <link rel="stylesheet" href="<?php echo TR_BASE_HREF; ?>templates/system/page_template.css" type="text/css" />
+    <?php
+    if($pageTemplateList != null){
+   //     die("nn nullo");
+    ?>
+        <div class="boxTotal" style="display: <?php ($with_content == 0 ? "block" : "none") ?>">
+        <div class="boxPageTemplate" style="display:block;">
+        <ul>
+    <?php
+        foreach ($pageTemplateList as $key => $value) {
+    ?>
+        <li>
+        <table id="<?php echo $key ?>" >
+        <tr>
+        <td>
+        <a href="javascript: void(0);">
+        <img title="<?php echo _AT('img_title_pagetemplate_icon', $value['name']) ?>" style="padding:10px;" src="<?php echo TR_BASE_HREF; ?>templates/page_template/<?php echo $key; ?>/screenshot.png" alt="<?php echo _AT('img_pagetemplate_icon',$key); ?>" /><br />
+        <span class="desc"><?php echo $value['name']; ?></span>
+        </a>
+        </td>
+        </tr>
+        </table>
+        </li>
+    <?php
+        }
+    ?>
+        </ul>
+        </div> 
+        <div class="boxPageTemplateTool">
+        <ul>
+        </ul>
+        <ul>
+        <li id="pageTemplatePaste" style="display: none;">
+        <img alt="error paste" title="paste" src="<?php echo TR_BASE_HREF; ?>templates/system/paste.png">
+<?php        echo _AT('paste_page_template'); ?>
+        </li>
+        <li id="pageTemplateCopy">
+        <img alt="error copy" title="copy" src="<?php echo TR_BASE_HREF; ?>templates/system/copy.png">
+        <?php echo _AT('copy_page_template'); ?>
+        </li>
+        </ul>
+        </div>
+        </div> 
+
+        <div id="content-text"></div>
+    <?php    
+    }
+    ?>	
+    </form>
+</div>
+<?php
+return;
+        }
+        
 	public function view_page_templates($with_content)
-	{
+	{            
 		// 
 		// form if using save as button
 		echo '<form action="'.$_SERVER['REQUEST_URI'].'" id="test" method="post" style="display: none;" onsubmit="return false">';
@@ -177,7 +319,7 @@ class Page_template {
 					echo '<tr>';
 					echo '<td>';
 					echo '<a href="javascript: void(0);">';
-					echo '<img title="'._AT('img_title_pagetemplate_icon', _AT($key)).'" style="padding:10px;" src="'.TR_BASE_HREF.'templates/page_template/'.$key.'/screenshot.png" alt="'._AT('img_pagetemplate_icon',_AT($key)).'" /><br />';
+					echo '<img title="'._AT('img_title_pagetemplate_icon', $value['name']).'" style="padding:10px;" src="'.TR_BASE_HREF.'templates/page_template/'.$key.'/screenshot.png" alt="'._AT('img_pagetemplate_icon',$key).'" /><br />';
 					echo '<span class="desc">'. $value['name'] . '</span>';
 					echo '</a>';
 					echo '</td>';
@@ -237,28 +379,24 @@ class Page_template {
 
 		// read the list of available themes
 		$dir		= scandir($this->mod_path['page_template_dir_int']);
-
+                
 		// subtract files to be excluded from the list of available themes
 		$dir		= array_diff($dir, $this->except);
 
 		$dir		= array_merge(array(),$dir);
-
+                
 		// call the function that validates the available themes
 		$page_template_list	= $this->validatedPageTemplate($dir);
 
 		return $page_template_list;
 	}
-
+        
 	
 	function getPageTemplates($item) {
 		$pages = array();
 		foreach ($item->children() as $child) {
 			 $name = (string)$child['name'];
-			 
-			 $current_template = $this->checkPageTemplate($child['name']);
-			 if ($current_template) {
-			 	$pages[$name] = $current_template;
-			 }
+			 $pages[$name] = $this->checkPageTemplate($child['name']);
 		}
 
 		return $pages;
@@ -267,7 +405,6 @@ class Page_template {
 	function checkPageTemplate($name) {
 		$info = null;
 		$isdir = $this->mod_path['page_template_dir_int'].$name;
-		$info['token'] = $name;
 		// checking if the element is a directory
 		if(is_dir($isdir)){
 			// check if exists the .info file and parse it
@@ -277,40 +414,26 @@ class Page_template {
 
 				foreach($xml->children() as $child) {
 					$name = $child->getName();
-					if ($name == "name") {
-						$xml_defined_template_name = trim($child[0]);
-					}
-					
 					if($name == "release") 
 						$info['core'] = trim($child->version);
 					else
 						$info[$name] = trim($child);
-
 				}
 				
-				// determine the template name
-				if (_AT($info['token']) != '[ '.$info['token'].' ]') {
-					// 1st approach: retrieve from DB
-					$template_name = _AT($info['token']);
-				} else if (isset($xml_defined_template_name)) {
-					// 2nd approach: use name defined in page_template.xml
-					$template_name = $xml_defined_template_name;
-				} else if (!isset($template_name)) {
-					// if no name is defined, use the folder name
-					$template_name = trim($item);
-				}
+				// if you did not specify a name, use the folder name
+				if(!$info['name'])
+					$info['name'] = trim($item);
 				
 				// reduce the name length to 15 characters
-				$limit	= 14;
-				if(strlen($template_name) >= $limit){
-					$info['name']	= substr($template_name, 0, ($limit-2));
+				$limit	= 15;
+				if(strlen($info['name']) >= $limit){
+					$info['name']	= substr($info['name'], 0, ($limit-2));
 					$info['name']	.= '..';
-					
 				}
 
 				// check the "core"
 				if(!$info['core'])
-					return false;
+					continue;
 				else{
 
 					$vfile	= explode('.', $info['core']);
@@ -318,15 +441,18 @@ class Page_template {
 	
 					// cursory check for version compatibility
 					// stopping the cycle to the first incompatibility found
-					if($vfile[0] < $vcore[0]) {
+					/* WHAT IS THIS? Using continue here breaks
+					if($vfile[0] < $vcore[0])
 						// not compatible!
-						return false;
-					}
-					elseif(strtolower($vfile[1]) != 'x' AND $vfile[1] < $vcore[1]) {
+						continue;
+					elseif(strtolower($vfile[1]) != 'x' AND $vfile[1] < $vcore[1])
 						// not compatible!
-						return false;
-					}
+						continue;
+					*/
 				}
+
+				// put the info of the current model into an array
+				//$modelli[$item] = $info;
 			}
 		}	
 		return $info;
@@ -342,15 +468,11 @@ class Page_template {
 	 * */
 	
 	function validatedPageTemplate($dir = array()){
-		
+            
 		// scan all existing themes
 		$page_template = array();
 		foreach($dir as $item)  {
-			$current_template = $this->checkPageTemplate($item);
-			
-			if ($current_template) {
-				$page_template[$item] = $current_template;
-			}
+			$page_template[$item] = $this->checkPageTemplate($item);
 		}
 
 		return $page_template;

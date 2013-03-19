@@ -8,6 +8,45 @@
 /* modify it under the terms of the GNU General Public License          */
 /* as published by the Free Software Foundation.                        */
 /************************************************************************/
+label.label_search:hover{
+    cursor:pointer;
+}
+label.button_back{
+    margin: 0px 0px 0px 10px;
+    background-color: #E7E4D3;
+    border: 1px outset #CCCCCC;
+    border-radius: 0.3em 0.3em 0.3em 0.3em;
+    box-shadow: 0.1em 0.1em 0.2em #999999;
+    cursor: pointer;
+    display: inline-block;
+    height: 0.5em;
+    padding-bottom: 1em;
+    text-align: center;
+    width: 14em;
+}
+label.button_back:hover{
+    background-color: #FFDAB9;
+    font-weight: bold;
+}
+
+label.button_back2{
+    margin: 0px 0px 0px 10px;
+    background-color: #E7E4D3;
+    border: 1px outset #CCCCCC;
+    border-radius: 0.3em 0.3em 0.3em 0.3em;
+    box-shadow: 0.1em 0.1em 0.2em #999999;
+    cursor: pointer;
+    display: inline-block;
+    height: 0.4em;
+    padding-bottom: 1em;
+    text-align: center;
+    width: 3.5em;
+}
+label.button_back2:hover{
+    background-color: #FFDAB9;
+}
+
+
 label.success_label{
     display:inline-block;
     text-align: center;
@@ -19,6 +58,14 @@ label.success_label{
     margin-left: 220px;
     padding: 5px;
     width: 300px;
+}
+
+label.label_link{
+    color: blue;
+    text-decoration: underline;
+}
+label.label_link:hover{
+    cursor: pointer;
 }
 
 div.left-col {
@@ -37,12 +84,14 @@ img.layout_img_big{
     height: 48px;
 }
 img.layout_img_small{
-    margin-left: 47px;
-	border:thin solid black;
+    padding-left: 77px;
     width: auto;
     height: 48px;
-    width: 150px;
 }
+
+
+
+
 
 div.right-col {
 	width: 25%; 
@@ -58,15 +107,13 @@ div.input-form {
 	width: 95%; 
 	margin-left:auto; 
 	margin-right:auto;
-	border: 1px #206BA4 solid;
+	border: 1px #cccccc solid;
 	margin-bottom: 20px;
 	line-height:150%;
-/*	background-color: #F1EFE2;*/
-
-	background-color: #F5FAFA;
+	background-color: #F1EFE2;
 	padding:.3em;
-	border-radius:.2em .2em .2em .2em;
-	-moz-border-radius:.2em .2em .2em .2em;
+	border-radius:.5em .5em .5em .5em;
+	-moz-border-radius:.5em .5em .5em .5em;
 	/* -moz-box-shadow:.05em .05em .0em #999999;
 	 box-shadow: .1em .0em  .1em #999999; */
 }

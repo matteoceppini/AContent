@@ -162,7 +162,44 @@ if (array_key_exists(TR_PRIV_HOME, $privs) && Utility::authenticate($privs[TR_PR
 		$_pages['home/editor/edit_content_struct.php']['title'] = 'Edit content structure';
 		$_pages['home/editor/edit_content_struct.php']['parent']    = 'home/index.php';
 		//$_pages['home/editor/edit_content_folder.php']['guide']     = 'TR_HELP_EDIT_CONTENT_FOLDER';
+                
+                //CM
+                $_pages['home/editor/edit_content_wizard_step1.php']['title'] = 'Edit configuration wizard';
+		$_pages['home/editor/edit_content_wizard_step1.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_step2.php']['title'] = 'Edit content wizard';
+		$_pages['home/editor/edit_content_wizard_step2.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_step3.php']['title'] = 'Edit content wizard';
+		$_pages['home/editor/edit_content_wizard_step3.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_editor.php']['title'] = 'Edit content wizard editor';
+		$_pages['home/editor/edit_content_wizard_editor.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_layout.php']['title'] = 'Edit content wizard layout';
+		$_pages['home/editor/edit_content_wizard_layout.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_template.php']['title'] = 'Edit content wizard template';
+		$_pages['home/editor/edit_content_wizard_template.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_delete.php']['title'] = 'Edit content wizard delete';
+		$_pages['home/editor/edit_content_wizard_delete.php']['parent']    = 'home/index.php';
 		
+                $_pages['home/editor/edit_content_wizard_subpage.php']['title'] = 'Edit content wizard sub page';
+		$_pages['home/editor/edit_content_wizard_subpage.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_subfolder.php']['title'] = 'Edit content wizard sub folder';
+		$_pages['home/editor/edit_content_wizard_subfolder.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_classic_edit.php']['title'] = 'Edit content wizard classic editor';
+		$_pages['home/editor/edit_content_wizard_classic_edit.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_preview.php']['title'] = 'Info AContent default structure';
+		$_pages['home/editor/edit_content_wizard_preview.php']['parent']    = 'home/index.php';
+                
+                $_pages['home/editor/edit_content_wizard_control_struct.php']['title'] = 'Edit content wizard control structure';
+		$_pages['home/editor/edit_content_wizard_control_struct.php']['parent']    = 'home/index.php';
+                
 		$_pages['home/editor/delete_content.php']['title_var'] = 'delete_content';
 		$_pages['home/editor/delete_content.php']['parent']    = 'home/index.php';
 		$_pages['home/editor/delete_content.php']['guide']     = 'TR_HELP_DELETE_CONTENT';

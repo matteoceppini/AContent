@@ -55,7 +55,7 @@ if (isset($_POST['submit'])) {
 	if($_FILES['uploadedfile']['name'])	{
 		$_FILES['uploadedfile']['name'] = trim($_FILES['uploadedfile']['name']);
 		$_FILES['uploadedfile']['name'] = str_replace(' ', '_', $_FILES['uploadedfile']['name']);
-
+             
 		$path_parts = pathinfo($_FILES['uploadedfile']['name']);
 		$ext = $path_parts['extension'];
 		/* check if this file extension is allowed: */
@@ -135,6 +135,29 @@ if (isset($_POST['submit'])) {
 						$msg->addFeedback('FILE_UPLOADED');
 						FileUtility::handleAjaxUpload(200);
 						
+                                                        // Inserisco controllo copyright
+// con richiesta a DB
+
+        $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id."";
+        $contentDAO = new ContentDAO();
+        $result=$contentDAO->execute($sql);
+        if(is_array($result))
+        {
+            foreach ($result as $support) {
+               $copyright=$support['copyright']; //ok
+               break;
+            }  
+        }
+        if($copyright==TR_STATUS_ENABLED){
+            // Ok...
+            
+        }
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
 						if ($alter)
 							header('Location: '.$_base_href.'editor/edit_content.php?cid='.$_REQUEST['cid'].SEP . 'pathext='.$_POST['pathext'].SEP. 'popup='.$_GET['popup'].SEP. 'tab='.$_REQUEST['tab'].SEP.'_course_id='.$_course_id);
 						else
@@ -170,7 +193,7 @@ if (isset($_POST['submit'])) {
 		else
 			header('Location: index.php?pathext=' . $_POST['pathext'] . SEP . 'popup=' . $_GET['popup'].SEP. 'framed='.$framed.SEP.'cp='.$_GET['cp'].SEP.'pid='.$_GET['pid'].SEP.'cid='.$_GET['cid'].SEP.'a_type='.$_GET['a_type'].SEP.'_course_id='.$_course_id);
 		exit;
-	}
+	}    
 }
 
 ?>

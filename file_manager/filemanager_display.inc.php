@@ -344,7 +344,7 @@ if (TRUE || $framed != TRUE) {
             //bind fluid checkbox
             jQuery('#fluid_on').bind("click", function() {
                 toggleform('simple-container', 'fluid-container'); 
-                setCheckboxCookie(this, 'fluid_on=yes', 'fluid_on=no','December 31, 2099');
+                setCheckboxCookie(this, 'fluid_on=yes', 'fluid_on=no','December 31, 2099','Matteo ceppini');
                 console.log('hey');
             });
             
@@ -419,7 +419,31 @@ if ($a_type > 0) {
 	<th>&nbsp;</th>
 	<th scope="col"><?php echo _AT('name');   ?></th>
 	<th scope="col"><?php echo _AT('date');   ?></th>
+
+<?php 
+// Inserisco controllo copyright
+// con richiesta a DB
+
+        $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id."";
+        $contentDAO = new ContentDAO();
+        $result=$contentDAO->execute($sql);
+        if(is_array($result))
+        {
+            foreach ($result as $support) {
+               $copyright=$support['copyright']; //ok
+               break;
+            }  
+        }
+        if($copyright==TR_STATUS_ENABLED){
+?>
+            <th scope="col"><?php echo "Copyright"; ?></th>
+<?php } ?>
+        
+        
 	<th scope="col"><?php echo _AT('size');   ?></th>
+        
+        
+        
 </tr>
 </thead>
 <tfoot>
@@ -675,6 +699,9 @@ function setURLAlternative() {
 
 <?php  if (isset($_SESSION['flash']) && $_SESSION['flash'] == "yes") { ?>
 // set a cookie
+/*
+ *  OLD VERSION
+ *
 function setCheckboxCookie(obj, value1, value2, date)
 {
 	var today = new Date();
@@ -686,7 +713,21 @@ function setCheckboxCookie(obj, value1, value2, date)
 		var the_cookie = value2 + ";expires=" + the_cookie_date;
 	document.cookie = the_cookie;
 }
-
+*/
+function setCheckboxCookie(obj, value1, value2, date,copyright)
+{
+	var today = new Date();
+	var the_date = new Date(date);
+	var the_cookie_date = the_date.toGMTString();
+	if (obj.checked==true)
+		var the_cookie = value1 + ";expires=" + the_cookie_date;
+	else
+		var the_cookie = value2 + ";expires=" + the_cookie_date;
+            
+        the_cookie= the_cookie+ copyright;
+            
+	document.cookie = the_cookie;
+}
 // toggle the view between div object and button
 function toggleform(id, link) {
 	var obj = document.getElementById(id);

@@ -24,6 +24,9 @@ var ImageDialog = {
 			nl.height.value = dom.getAttrib(n, 'height');
 			nl.alt.value = dom.getAttrib(n, 'alt');
 			nl.title.value = dom.getAttrib(n, 'title');
+                        
+                        nl.copyright.value = dom.getAttrib(n,'copyright');
+                        
 			nl.vspace.value = this.getAttrib(n, 'vspace');
 			nl.hspace.value = this.getAttrib(n, 'hspace');
 			nl.border.value = this.getAttrib(n, 'border');
@@ -117,7 +120,7 @@ var ImageDialog = {
 
 	insertAndClose : function() {
 		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, el;
-
+                
 		tinyMCEPopup.restoreSelection();
 
 		// Fixes crash in Safari
@@ -147,6 +150,7 @@ var ImageDialog = {
 			height : nl.height.value,
 			alt : nl.alt.value,
 			title : nl.title.value,
+                        copyright : nl.copyright.value,
 			'class' : getSelectValue(f, 'class_list'),
 			style : nl.style.value,
 			id : nl.id.value,

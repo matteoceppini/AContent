@@ -4,7 +4,7 @@
     Microsoft Windows
   </name>
   <description lang="en">
-    Microsoft Windows look and feel
+    Microsoft Windows
   </description>
   <maintainers>
     <maintainer>
@@ -20,7 +20,7 @@
   <license/>
   <release>
     <version>
-      1.x
+      1.2
     </version>
     <date/>
     <state>

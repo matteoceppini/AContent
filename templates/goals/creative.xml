@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<type name="creative">
+    <goal>comparizing</goal>
+    <goal>describing</goal>
+    <goal>finding solutions</goal>
+    <goal>hypotesising</goal>
+    <goal>recognize key problems</goal>
+    <goal>designing</goal>
+    <goal>planning</goal>
+    <goal>producing/constructing</goal>
+    <goal>venting/devising</goal>
+</type>

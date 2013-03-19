@@ -53,6 +53,10 @@ $children = $contentManager->getContent($_GET['cid']);
 
 $hidden_vars['_cid'] = $_GET['cid'];
 
+if(isset($_POST['wizard'])){
+    $wizard_vars['wiz']=$_POST['wizard'];
+}
+
 if (is_array($children) && (count($children)>0) ) {
 	$msg->addConfirm('SUB_CONTENT_DELETE', $hidden_vars);
 //	$msg->addConfirm('GLOSSARY_REMAINS', $hidden_vars);

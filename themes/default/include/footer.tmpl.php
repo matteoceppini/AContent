@@ -29,9 +29,9 @@ if ($this->course_id > 0) { ?>
       </div> <!-- end of contentcolumn -->
     </div> <!-- end of contentwrapper -->
 	
-	<div id="footer" role="contentinfo">
+	<div id="footer">
 	    <div id="logo">
-      <a href="http://www.atutor.ca/acontent"><img  src="<?php echo $this->base_path; ?>images/AC_Logo1_sm.png"  alt="AContent  Logo" style="border:none;" /></a>
+      <a href="http://www.atutor.ca/acontent"><img  src="<?php echo $this->base_path; ?>/images/AC_Logo1_sm.png"  alt="AContent  Logo" style="border:none;" /></a>
     </div>
 
       <div align="center" class="foot_text">
@@ -77,8 +77,6 @@ $totaltime = ($endtime - $starttime);
 
 if (defined('TR_DEVEL') && TR_DEVEL) 
 {
-
-
 	debug(TABLE_PREFIX, 'TABLE_PREFIX');
 	debug(DB_NAME, 'DB_NAME');
 	debug($totaltime. ' seconds.', "TIME USED"); 

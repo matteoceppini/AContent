@@ -47,6 +47,14 @@
 								<td class="column1"><label id="titlelabel" for="title">{#advimage_dlg.title}</label></td> 
 								<td colspan="2"><input id="title" name="title" type="text" value="" /></td> 
 							</tr>
+                                                    <?php
+                                                    die("s");
+                                                    ?>
+                                                        <tr> 
+								<td class="column1"><label id="q" for="a">Copyright</label></td> 
+								<td colspan="2"><input id="copyright" name="copyright" type="text" value="" /></td> 
+							</tr>
+                                                    
 						</table>
 				</fieldset>
 
@@ -129,7 +137,7 @@
 							<td class="column1"><label id="stylelabel" for="style">{#advimage_dlg.style}</label></td> 
 							<td colspan="2"><input id="style" name="style" type="text" value="" onchange="ImageDialog.changeAppearance();" /></td> 
 						</tr>
-
+                                            
 						<!-- <tr>
 							<td class="column1"><label id="classeslabel" for="classes">{#advimage_dlg.classes}</label></td> 
 							<td colspan="2"><input id="classes" name="classes" type="text" value="" onchange="selectByValue(this.form,'classlist',this.value,true);" /></td> 

@@ -45,22 +45,7 @@ class ContentUtility {
 	
 		return $text;
 	}
-        
-        public static function getHTMLContent($text) {
-           //remove the content div if it exists
-           
-            
-            
-           if(strpos($text,'<div id="content">') !== false && strstr($text, '<div id="content">', true) == "") {
-                    //the div element with id=content is the first element so I remove it
-                    $text = substr($text, strlen('<div id="content">'));
-                    $text = trim(substr($text, 0, strlen($text)-strlen('</div>')));
-            }
-  
-            return $text;
-	}
-            
-  
+
 	/**
 	* This function cuts out requested tag information from html head
 	* @access  public
@@ -246,7 +231,7 @@ class ContentUtility {
      *          For instance: http://www.youtube.com/watch?v=a0ryB0m0MiM
      *          Otherwise, return the original send-in parameter.
      */
-    public static function convertYoutubePlayURLToWatchURL($youtube_playURL) {
+    public function convertYoutubePlayURLToWatchURL($youtube_playURL) {
         return preg_replace("/(http:\/\/[a-z0-9\.]*)?youtube.com\/v\/(.*)/",
                             "\\1youtube.com/watch?v=\\2", $youtube_playURL);
     }

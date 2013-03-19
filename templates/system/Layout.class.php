@@ -134,6 +134,7 @@ class Layout{
 
 					// check the "core"
 					if(!$info['core'])
+						
 						continue;
 					else {
 
@@ -142,12 +143,15 @@ class Layout{
 		
 						// cursory check for version compatibility
 						// stopping the cycle to the first incompatibility found
+						/*
 						if($vfile[0] < $vcore[0])
 							// not compatible!
 							continue;
 						elseif(strtolower($vfile[1]) != 'x' and $vfile[1] < $vcore[1]) 
 							// not compatible!
 							continue;
+						*/
+						
 					}
 	
 					// put the info of the current layout into an array
@@ -192,7 +196,7 @@ class Layout{
                         <th scope="col">&nbsp;</th>
                         <th scope="col">'._AT('name').'</th>
                         <th scope="col">'._AT('description').'</th>
-                        <th scope="col">'._AT('thumbnail').'</th>
+                        <th scope="col">'._AT('icon').'</th>
                     </tr>
                 </thead>';
 
@@ -202,7 +206,7 @@ class Layout{
 		$ui .= '<td><label for="radio-nothing" style="cursor:pointer;">'._AT('nothing').'</label></td>';
 		$ui .= '<td>'._AT('nothing_description').'</td>';
 
-		$ui .= '<td><div><img class="layout_img_small"  src="'.TR_BASE_HREF.'/templates/system/nolayout.png" src=""  desc="Nothing Screenshot" title="'._AT('img_layout_icon','nothing').'" /></td></div>';       
+		$ui .= '<td><div><img class="layout_img_small"  src="'.TR_BASE_HREF.'/templates/system/nolayout.png" style="height:48px;" src=""  desc="Nothing Screenshot" title="'._AT('img_layout_icon','nothing').'" id="layoutscreenshot"  /></td></div>';       
 		$ui .= '</tr>'; 
 		$ui .= '</tr>';
 
@@ -217,13 +221,13 @@ class Layout{
 			$ui .= '<td>'.$tval['description'].'</td>';
 
 			if($tname!='seti' && $tname!='windows'&& $tname!='unibo') {    
-				$ui .= '<td><div><img class="layout_img_small" src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'"  title="'._AT('img_layout_icon',$tname).'"  /></td></div>';       
+				$ui .= '<td><div><img class="layout_img_big" src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'"  title="'._AT('img_layout_icon',$tname).'" id="layoutscreenshot"  /></td></div>';       
 				$ui .= '</tr>'; 
 			} elseif($tname != unibo) {
-				$ui .= '<td><div><img  class="layout_img_small" src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'"  title="'._AT('img_layout_icon',$tname).'" /></td></div>';       
+				$ui .= '<td><div><img  class="layout_img_small" src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'"  title="'._AT('img_layout_icon',$tname).'" id="layoutscreenshot"  /></td></div>';       
 				$ui .= '</tr>'; 
 			} else {
-				$ui .= '<td><div><img  class="layout_img_small" src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'" title="'._AT('img_layout_icon',$tname).'"  /></td></div>';       
+				$ui .= '<td><div><img  src="'.TR_BASE_HREF.'/templates/layout/'.$tname.'/screenshot-'.$tname.'.png" alt="'._AT('img_layout_icon',$tname).'" title="'._AT('img_layout_icon',$tname).'" id="layoutscreenshot"  /></td></div>';       
 				$ui .= '</tr>'; 
 			}
 		}
@@ -406,14 +410,12 @@ class Layout{
 
 		$styles			= array();
 		$stylesheet		= '';
-	
-                
-                
+		
 		for($i=0; $i < count($rows); $i++){
-                        
-			if($rows[$i]['layout'] != '' && $this->exist_layout($rows[$i]['layout'])){
+
+			if($rows[$i]['layout'] != ''){
 				// In another version, AContent requires 'commoncartridge' as folder
-				$rows[$i]['head']					= '<link rel="stylesheet" href="commoncartridge/'.$rows[$i]['layout'].'.css" type="text/css" />'.$rows[$i]['head'];
+				//$rows[$i]['head']					= '<link rel="stylesheet" href="commoncartridge/'.$rows[$i]['layout'].'.css" type="text/css" />'.$rows[$i]['head'];
 				//$rows[$i]['head']					= '<link rel="stylesheet" href="'.$rows[$i]['layout'].'.css" type="text/css" />'.$rows[$i]['head'];
 				$rows[$i]['use_customized_head']	= '1';
 
@@ -447,16 +449,6 @@ class Layout{
 
 		return $rows;
 	}
-        
-        public function exist_layout($layout) {
-            
-                if(is_dir('../../templates/layout/'.$layout))
-                        return true;
-                else
-                        return false;
-        }
-        
-        
 
 }
 ?>

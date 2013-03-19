@@ -31,7 +31,6 @@ if (isset($_GET['oauth_token']))
 {
 	require_once(TR_INCLUDE_PATH.'config.inc.php');
 	require_once(TR_INCLUDE_PATH.'constants.inc.php');
-	require_once(TR_INCLUDE_PATH.'lib/vital_funcs.inc.php');
 	
 	if ($_GET['oauth_token'] == '')
 	{
@@ -1230,9 +1229,6 @@ foreach ($items as $item_id => $content_info)
 			// end of specifically handle eXe package
 
 			$content = ContentUtility::getHtmlBody($content);
-                        //remove div content if exists
-                        $content = ContentUtility::getHTMLContent($content);
-                        
 			if ($contains_glossary_terms) 
 			{
 				// replace glossary content package links to real glossary mark-up using [?] [/?]

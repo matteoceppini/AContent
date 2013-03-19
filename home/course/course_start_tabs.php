@@ -40,7 +40,7 @@ function get_tabs() {
         }
         
         //future feature
-        //$tabs[++$inc] = array('wizard', 'wizard.inc.php',  'w');
+        $tabs[++$inc] = array('wizard', 'wizard.inc.php',  'w');
        
 	return $tabs;
 }
