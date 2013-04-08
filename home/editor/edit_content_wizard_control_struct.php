@@ -9,228 +9,241 @@ and open the template in the editor.
     require_once(TR_INCLUDE_PATH.'../home/classes/ContentUtility.class.php');
     require_once(TR_INCLUDE_PATH.'../home/classes/StructureManager.class.php');
     
-//save and redirect to step3   
-    if($_POST['next']){
-        
-        $pid=0;
-        
-        if (defined('TR_FORCE_GET_FILE') && TR_FORCE_GET_FILE) {
-            $course_base_href = 'get.php/';
-        } else {
-            $course_base_href = 'content/' . $_course_id . '/';
-        }
-
-
-
-        if ($cid > 0 && isset($contentManager)) {
-                $content_row = $contentManager->getContentPage($cid);
-        }
-        // save changes
-
-	if ($_POST['title'] == '') {
-		$msg->addError(array('EMPTY_FIELDS', _AT('title')));
-	}
-		
-	if (!$msg->containsErrors()) 
-	{
-		$_POST['title']	= $content_row['title'] = $_POST['title'];
-	/*$cid=0;
-		if ($cid > 0)
-		{ // edit existing content
-			$err = $contentManager->editContent($cid, 
-			                                    $_POST['title'], 
-			                                    '', 
-			                                    '', 
-			                                    $content_row['formatting'], 
-			                                    '', 
-			                                    $content_row['use_customized_head'], 
-			                                    '');
-		}
-		else
-		{ */
-         // add new content
-         
-			// find out ordering and content_parent_id
-			if ($pid)
-			{ // insert sub content folder
-				$ordering = count($contentManager->getContent($pid))+1;
-			}
-			else
-			{ // insert a top content folder
-				$ordering = count($contentManager->getContent(0)) + 1;
-				$pid = 0;
-			}
-			
-			$cid = $contentManager->addContent($_SESSION['course_id'],
-			                                   $pid,
-			                                   $ordering,
-			                                   $_POST['title'],
-			                                   '',
-			                                   '',
-			                                   '',
-			                                   0,
-			                                   '',
-			                                   0,
-			                                   '',
-			                                   1,
-			                                   CONTENT_TYPE_FOLDER);
-                    	
-		    $struc_manag = new StructureManager($_POST['title']);	     
-		    $page_temp = $struc_manag->get_page_temp();
-			
-                    $struc_manag->createStruct($page_temp, $cid, $_course_id);   
-			
-			
-		}
-
-                $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
-                $contentDAO = new ContentDAO();
-                $result=$contentDAO->execute($sql);
-                if(is_array($result))
-                {
-                    foreach ($result as $support) {
-                       $copyright=$support['copyright']; 
-                       break;
-                    }  
-                }
-		if($copyright==TR_STATUS_ENABLED){
-
-                    $sql = "UPDATE ".TABLE_PREFIX."content 
-                                                   SET copyright='.$copyright.'
-                                                 WHERE course_id=".$_course_id;
-                    $result=$contentDAO->execute($sql);
-                }
-		$sql="SELECT accessibility FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
-                $contentDAO = new ContentDAO();
-                $result=$contentDAO->execute($sql);
-                if(is_array($result))
-                {
-                    foreach ($result as $support) {
-                       $accessibility=$support['accessibility']; 
-                       break;
-                    }  
-                }
-                if($accessibility==TR_STATUS_ENABLED){
-
-                    $sql = "UPDATE ".TABLE_PREFIX."content 
-                                                   SET accessibility='.$accessibility.'
-                                                 WHERE course_id=".$_course_id;
-                    $result=$contentDAO->execute($sql);
-                }
-                
-		$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
-		header('Location: '.TR_BASE_HREF.'home/editor/edit_content_wizard_step3.php?_course_id='.$_course_id.'&_content_id='.$cid);
-		exit;
-	//}
-
-    }
-    
     global  $_content_id,$contentManager, $_course_id;
     $cid = $_content_id;
     $cid_sup = $cid;
     
+//save and redirect to step3   
+    if($_POST['next']){
+        
+        // controls to check whether you have selected a radio button
+        if(!isset($_POST['title'])){
+            require(TR_INCLUDE_PATH.'header.inc.php');
+            echo '<div class="input-form" style="width:95%; margin-left:1.5em;">';
+            echo '<link rel="stylesheet" type="text/css" href="'.TR_BASE_HREF.'/themes/default/forms.css">';
+            echo '<div style="line-height: 150%;" id="error">';
+            echo '<h4>'._AT('the_follow_errors_occurred').'</h4><ul>';
+            echo '<li>'._AT('error_wizard_fields').'</li></ul></div>';
+            echo '<div class="row buttons">';
+            echo '<form action="'.TR_BASE_HREF.'home/editor/edit_content_wizard_control_struct.php?_cid='.$cid.'" method="post" name="form"> ';
+            echo '<input type="submit" name="try_again" value="Try Again" title="Try Again alt-t"  accesskey="t" /></form>';
+            echo '<form action="'.TR_BASE_HREF.'home/index.php" method="post" name="form"> ';
+            echo '<input type="submit" name="give_up" value="Give Up" title="Give Up alt-g"  accesskey="g" /></form>';
+            echo '</div>';
+            echo '</div>';
+            require(TR_INCLUDE_PATH.'footer.inc.php');
+        }else{
+        
+            $pid=0;
+
+            if (defined('TR_FORCE_GET_FILE') && TR_FORCE_GET_FILE) {
+                $course_base_href = 'get.php/';
+            } else {
+                $course_base_href = 'content/' . $_course_id . '/';
+            }
+
+
+
+            if ($cid > 0 && isset($contentManager)) {
+                    $content_row = $contentManager->getContentPage($cid);
+            }
+            // save changes
+
+            if ($_POST['title'] == '') {
+                    $msg->addError(array('EMPTY_FIELDS', _AT('title')));
+            }
+
+            if (!$msg->containsErrors()) 
+            {
+                    $_POST['title']	= $content_row['title'] = $_POST['title'];
+                            // find out ordering and content_parent_id
+                            if ($pid)
+                            { // insert sub content folder
+                                    $ordering = count($contentManager->getContent($pid))+1;
+                            }
+                            else
+                            { // insert a top content folder
+                                    $ordering = count($contentManager->getContent(0)) + 1;
+                                    $pid = 0;
+                            }
+                            $cid = $contentManager->addContent($_SESSION['course_id'],
+                                                               $pid,
+                                                               $ordering,
+                                                               $_POST['title'],
+                                                               '','','',0,'',0,'',1,
+                                                               CONTENT_TYPE_FOLDER);
+
+                        $struc_manag = new StructureManager($_POST['title']);	     
+                        $page_temp = $struc_manag->get_page_temp();
+
+                        $struc_manag->createStruct($page_temp, $cid, $_course_id);   
+
+
+                    }
+
+                    $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
+                    $contentDAO = new ContentDAO();
+                    $result=$contentDAO->execute($sql);
+                    if(is_array($result))
+                    {
+                        foreach ($result as $support) {
+                           $copyright=$support['copyright']; 
+                           break;
+                        }  
+                    }
+                    if($copyright==TR_STATUS_ENABLED){
+
+                        $sql = "UPDATE ".TABLE_PREFIX."content 
+                                                       SET copyright='.$copyright.'
+                                                     WHERE course_id=".$_course_id;
+                        $result=$contentDAO->execute($sql);
+                    }
+                    $sql="SELECT accessibility FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
+                    $contentDAO = new ContentDAO();
+                    $result=$contentDAO->execute($sql);
+                    if(is_array($result))
+                    {
+                        foreach ($result as $support) {
+                           $accessibility=$support['accessibility']; 
+                           break;
+                        }  
+                    }
+                    if($accessibility==TR_STATUS_ENABLED){
+
+                        $sql = "UPDATE ".TABLE_PREFIX."content 
+                                                       SET accessibility='.$accessibility.'
+                                                     WHERE course_id=".$_course_id;
+                        $result=$contentDAO->execute($sql);
+                    }
+
+                    $msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
+                    header('Location: '.TR_BASE_HREF.'home/editor/edit_content_wizard_step3.php?_course_id='.$_course_id.'&_content_id='.$cid);
+                    exit;
+            //}
+
+        }
+    }
+  
+    
     if($_POST['save_structure']){
         
-        $pid=0;
+         if(!isset($_POST['title'])){
+            require(TR_INCLUDE_PATH.'header.inc.php');
+            echo '<div class="input-form" style="width:95%; margin-left:1.5em;">';
+            echo '<link rel="stylesheet" type="text/css" href="'.TR_BASE_HREF.'/themes/default/forms.css">';
+            echo '<div style="line-height: 150%;" id="error">';
+            echo '<h4>'._AT('the_follow_errors_occurred').'</h4><ul>';
+            echo '<li>'._AT('error_wizard_fields').'</li></ul></div>';
+            echo '<div class="row buttons">';
+            echo '<form action="'.TR_BASE_HREF.'home/editor/edit_content_wizard_control_struct.php?_cid='.$cid.'" method="post" name="form"> ';
+            echo '<input type="submit" name="try_again" value="Try Again" title="Try Again alt-t"  accesskey="t" /></form>';
+            echo '<form action="'.TR_BASE_HREF.'home/index.php" method="post" name="form"> ';
+            echo '<input type="submit" name="give_up" value="Give Up" title="Give Up alt-g"  accesskey="g" /></form>';
+            echo '</div>';
+            echo '</div>';
+            require(TR_INCLUDE_PATH.'footer.inc.php');
+        }else{
         
-        if (defined('TR_FORCE_GET_FILE') && TR_FORCE_GET_FILE) {
-            $course_base_href = 'get.php/';
-        } else {
-            $course_base_href = 'content/' . $_course_id . '/';
-        }
+            $pid=0;
+
+            if (defined('TR_FORCE_GET_FILE') && TR_FORCE_GET_FILE) {
+                $course_base_href = 'get.php/';
+            } else {
+                $course_base_href = 'content/' . $_course_id . '/';
+            }
 
 
 
-        if ($cid > 0 && isset($contentManager)) {
-                $content_row = $contentManager->getContentPage($cid);
-        }
-        // save changes
+            if ($cid > 0 && isset($contentManager)) {
+                    $content_row = $contentManager->getContentPage($cid);
+            }
+            // save changes
 
-	if ($_POST['title'] == '') {
-		$msg->addError(array('EMPTY_FIELDS', _AT('title')));
-	}
-		
-	if (!$msg->containsErrors()) 
-	{
-		$_POST['title']	= $content_row['title'] = $_POST['title'];
+            if ($_POST['title'] == '') {
+                    $msg->addError(array('EMPTY_FIELDS', _AT('title')));
+            }
 
-         // add new content
-         
-			// find out ordering and content_parent_id
-			if ($pid)
-			{ // insert sub content folder
-				$ordering = count($contentManager->getContent($pid))+1;
-			}
-			else
-			{ // insert a top content folder
-				$ordering = count($contentManager->getContent(0)) + 1;
-				$pid = 0;
-			}
-			
-			$cid = $contentManager->addContent($_SESSION['course_id'],
-			                                   $pid,
-			                                   $ordering,
-			                                   $_POST['title'],
-			                                   '',
-			                                   '',
-			                                   '',
-			                                   0,
-			                                   '',
-			                                   0,
-			                                   '',
-			                                   1,
-			                                   CONTENT_TYPE_FOLDER);
-			
-		    $struc_manag = new StructureManager($_POST['title']);	     
-		    $page_temp = $struc_manag->get_page_temp();
-			
-                    $struc_manag->createStruct($page_temp, $cid, $_course_id);   
-			
-			
-		}
-		
-                $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
-                $contentDAO = new ContentDAO();
-                $result=$contentDAO->execute($sql);
-                if(is_array($result))
-                {
-                    foreach ($result as $support) {
-                       $copyright=$support['copyright']; 
-                       break;
-                    }  
-                }
-		if($copyright==TR_STATUS_ENABLED){
+            if (!$msg->containsErrors()) 
+            {
+                    $_POST['title']	= $content_row['title'] = $_POST['title'];
 
-                    $sql = "UPDATE ".TABLE_PREFIX."content 
-                                                   SET copyright='.$copyright.'
-                                                 WHERE course_id=".$_course_id;
+             // add new content
+
+                            // find out ordering and content_parent_id
+                            if ($pid)
+                            { // insert sub content folder
+                                    $ordering = count($contentManager->getContent($pid))+1;
+                            }
+                            else
+                            { // insert a top content folder
+                                    $ordering = count($contentManager->getContent(0)) + 1;
+                                    $pid = 0;
+                            }
+
+                            $cid = $contentManager->addContent($_SESSION['course_id'],
+                                                               $pid,
+                                                               $ordering,
+                                                               $_POST['title'],
+                                                               '',
+                                                               '',
+                                                               '',
+                                                               0,
+                                                               '',
+                                                               0,
+                                                               '',
+                                                               1,
+                                                               CONTENT_TYPE_FOLDER);
+
+                        $struc_manag = new StructureManager($_POST['title']);	     
+                        $page_temp = $struc_manag->get_page_temp();
+
+                        $struc_manag->createStruct($page_temp, $cid, $_course_id);   
+
+
+                    }
+
+                    $sql="SELECT copyright FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
+                    $contentDAO = new ContentDAO();
                     $result=$contentDAO->execute($sql);
-                }
-		$sql="SELECT accessibility FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
-                $contentDAO = new ContentDAO();
-                $result=$contentDAO->execute($sql);
-                if(is_array($result))
-                {
-                    foreach ($result as $support) {
-                       $accessibility=$support['accessibility']; 
-                       break;
-                    }  
-                }
-                if($accessibility==TR_STATUS_ENABLED){
+                    if(is_array($result))
+                    {
+                        foreach ($result as $support) {
+                           $copyright=$support['copyright']; 
+                           break;
+                        }  
+                    }
+                    if($copyright==TR_STATUS_ENABLED){
 
-                    $sql = "UPDATE ".TABLE_PREFIX."content 
-                                                   SET accessibility='.$accessibility.'
-                                                 WHERE course_id=".$_course_id;
+                        $sql = "UPDATE ".TABLE_PREFIX."content 
+                                                       SET copyright='.$copyright.'
+                                                     WHERE course_id=".$_course_id;
+                        $result=$contentDAO->execute($sql);
+                    }
+                    $sql="SELECT accessibility FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id." AND content_id IN (SELECT MIN(content_id) FROM ".TABLE_PREFIX."content WHERE course_id=".$_course_id.")";
+                    $contentDAO = new ContentDAO();
                     $result=$contentDAO->execute($sql);
-                }
-                           
-		$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
-		header('Location: '.TR_BASE_HREF.'home/editor/edit_content_wizard_control_struct.php?_cid='.$cid_sup);
-		exit;
-	//}
+                    if(is_array($result))
+                    {
+                        foreach ($result as $support) {
+                           $accessibility=$support['accessibility']; 
+                           break;
+                        }  
+                    }
+                    if($accessibility==TR_STATUS_ENABLED){
 
+                        $sql = "UPDATE ".TABLE_PREFIX."content 
+                                                       SET accessibility='.$accessibility.'
+                                                     WHERE course_id=".$_course_id;
+                        $result=$contentDAO->execute($sql);
+                    }
+
+                    $msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
+                    header('Location: '.TR_BASE_HREF.'home/editor/edit_content_wizard_control_struct.php?_cid='.$cid_sup);
+                    exit;
+            //}
+
+        }
     }
-
 
 
     Utility::authenticate(TR_PRIV_ISAUTHOR);
@@ -253,6 +266,13 @@ and open the template in the editor.
         }  
     }
 
+//save and redirect to step3   
+    if(!isset($_POST['next']) && !isset($_POST['save_structure'])){
+        
+        // controls to check whether you have selected a radio button
+        if(!isset($_POST['title'])){    
+    
+    
     $onload = "document.form.title.focus();";
     require(TR_INCLUDE_PATH.'header.inc.php'); 
 ?>    
@@ -390,5 +410,7 @@ and open the template in the editor.
 <?php
                             }
    require(TR_INCLUDE_PATH.'footer.inc.php');
+        }
+    }
 
 ?>
